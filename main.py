@@ -1,23 +1,23 @@
 import sys
 import random
-from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtGui import QPainter, QColor
+from UI import  Ui_MainWindow
 
 
-class CircleSpawner(QMainWindow):
+class CircleSpawner(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('UI.ui', self)
+        self.setupUi(self)
         self.is_drew = False
         self.setWindowTitle('Супрематизм')
         self.pushButton.clicked.connect(self.draw)
         self.SCREEN_SIZE = [680, 480]
-        self.size = random.randint(10, 100)
-        self.color = (255, 255, 0)
 
     def draw(self):
         self.is_drew = True
+        self.size = random.randint(10, 100)
+        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.update()
 
     def paintEvent(self, event):
