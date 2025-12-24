@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="1">
+ <tileset firstgid="1" source="colored_sheet.tsx"/>
+ <layer id="1" name="walls" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJwTZmBgEKESFgViFwbqAbdR80bNGzVv1LwRbt4BRuqZVwrEZVTC5UAMAOoKFT4=
+  </data>
+ </layer>
+ <layer id="7" name="walls2" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJy1lFEKwDAIQ7v7X3q/Q/KSbDhBsGiTiLbn7Nv1cJebfuAOYcyYahUuYaiYcoqHzg2v093c+4JHPaa5pHmRLpVPutIcHH67G20/7W6o+kbfBh7V/6XP1U8j3jf/QHqjTm+zi4or7afjbHROPso1Oh3Gtt0ZMgCn
+  </data>
+ </layer>
+ <layer id="2" name="path" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJy1k10KwCAMg3sx73+tvUrJX2UtCEPjZ4xr1W6dNpz23uMYSnNr+7mKgb7TNXRu6p3xEo+K7XhI5+YRj+XO3kjxVKl7TvypbFmer//TJL8/eGp+wx/Tdw3LMekn9NaTPkz2qn5lHOcl9TnpYeeziHajPkg1JWo=
+  </data>
+ </layer>
+ <layer id="6" name="base" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMFjBAcaBdgFuAAB72wDC
+  </data>
+ </layer>
+ <layer id="4" name="apple" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBicYArzQLtgFIyCUTAKRgE+AABcggCY
+  </data>
+ </layer>
+ <layer id="5" name="collision" width="20" height="20" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJy1k9sOgDAIQ/luvn6vhvSG2ZYsGqzl4GxXVT/cczltAy3zUJqvdvZVHug+fYb6puzML2FU3s6PzajqyA/NibhmLeFKz2HDh3oqbsXJmJwe8d3wU/UXfEzPzp1dVZ6mZpvD5F20knxs/okkN+4bO042k8vWn30AjCpzVQ==
+  </data>
+ </layer>
+</map>
