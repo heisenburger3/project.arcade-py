@@ -11,6 +11,26 @@ DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 
 
+class Player(arcade.Sprite):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.texture = arcade.load_texture(":resources:images/enemies/wormGreen.png")
+        self.scale = 0.38
+        self.center_x = x
+        self.center_y = y
+
+        self.textures = (self.texture, arcade.load_texture(":resources:images/enemies/wormGreen_move.png"))
+        self.current_texture = 0
+
+    def move(self, change_x, change_y, transfomation):
+        self.center_x += change_x
+        self.center_y += change_y
+
+        if transfomation:
+            self.current_texture = (self.current_texture + 1) % 2
+            self.texture = self.textures[self.current_texture]
+
+
 class StartView(arcade.View):  # Главное меню игры
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -52,9 +72,7 @@ class LevelFirst(arcade.View):
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
         tile_map = arcade.load_tilemap('assets/first_level.tmx', scaling=TILE_SCALING)
-        self.player_sprite = arcade.Sprite(":resources:images/enemies/wormGreen.png",0.38)
-        self.player_sprite.center_x = 48
-        self.player_sprite.center_y = 50
+        self.player_sprite = Player(48, 50)
         self.player_list.append(self.player_sprite)
 
         # Таймер
@@ -94,6 +112,9 @@ class LevelFirst(arcade.View):
         self.world_width = SCREEN_WIDTH
         self.world_height = SCREEN_HEIGHT
 
+        self.transform_timer = 0
+        self.transformation = False
+
     def on_draw(self):
         self.clear()
 
@@ -130,6 +151,11 @@ class LevelFirst(arcade.View):
             f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
             arcade.color.WHITE, 20, batch=self.batch)
 
+        self.transform_timer += delta_time
+        if self.transform_timer > 0.18:
+            self.transformation = True
+            self.transform_timer = 0
+
         # С помощью этого, наш червяк сможет адекватно передвигаться с зажатыми клавишами + расчёт скорости червяка
         # (одинаковая скорость при любом FPS)
 
@@ -145,8 +171,9 @@ class LevelFirst(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             change_x = TILE_SIZE * TILE_SCALING * delta_time * 4
 
-        self.player_sprite.change_x = change_x
-        self.player_sprite.change_y = change_y
+        if change_x != 0 or change_y != 0:
+            self.player_sprite.move(change_x, change_y, self.transformation)
+        self.transformation = False
 
         # Камера
         position = (
@@ -220,10 +247,7 @@ class LevelSecond(arcade.View):
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
         tile_map = arcade.load_tilemap('assets/second_level.tmx', scaling=TILE_SCALING)
-        self.player_sprite = arcade.Sprite(":resources:images/enemies/wormGreen.png",
-                                           0.38)
-        self.player_sprite.center_x = 48
-        self.player_sprite.center_y = 50
+        self.player_sprite = Player(48, 50)
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
@@ -249,6 +273,9 @@ class LevelSecond(arcade.View):
         self.world_width = SCREEN_WIDTH
 
         self.world_height = SCREEN_HEIGHT
+
+        self.transform_timer = 0
+        self.transformation = False
 
     def on_draw(self):
         self.clear()
@@ -280,6 +307,11 @@ class LevelSecond(arcade.View):
             f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
             arcade.color.WHITE, 20, batch=self.batch)
 
+        self.transform_timer += delta_time
+        if self.transform_timer > 0.18:
+            self.transformation = True
+            self.transform_timer = 0
+
         change_x = 0
         change_y = 0
 
@@ -292,9 +324,9 @@ class LevelSecond(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             change_x = TILE_SIZE * TILE_SCALING * delta_time * 4
 
-        # Устанавливаем изменение координат персонажа
-        self.player_sprite.change_x = change_x
-        self.player_sprite.change_y = change_y
+        if change_x != 0 or change_y != 0:
+            self.player_sprite.move(change_x, change_y, self.transformation)
+        self.transformation = False
 
         position = (
             self.player_sprite.center_x,
@@ -370,10 +402,7 @@ class LevelThird(arcade.View):
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
         tile_map = arcade.load_tilemap('assets/third_level.tmx', scaling=TILE_SCALING)
-        self.player_sprite = arcade.Sprite(":resources:images/enemies/wormGreen.png",
-                                           0.38)
-        self.player_sprite.center_x = 48
-        self.player_sprite.center_y = 50
+        self.player_sprite = Player(48, 50)
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
@@ -401,6 +430,9 @@ class LevelThird(arcade.View):
         self.world_width = SCREEN_WIDTH
 
         self.world_height = SCREEN_HEIGHT
+
+        self.transform_timer = 0
+        self.transformation = False
 
     def on_draw(self):
         """Отрисовка экрана"""
@@ -435,6 +467,11 @@ class LevelThird(arcade.View):
             f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
             arcade.color.WHITE, 20, batch=self.batch)
 
+        self.transform_timer += delta_time
+        if self.transform_timer > 0.18:
+            self.transformation = True
+            self.transform_timer = 0
+
         change_x = 0
         change_y = 0
 
@@ -447,9 +484,9 @@ class LevelThird(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             change_x = TILE_SIZE * TILE_SCALING * delta_time * 4
 
-        # Устанавливаем изменение координат персонажа
-        self.player_sprite.change_x = change_x
-        self.player_sprite.change_y = change_y
+        if change_x != 0 or change_y != 0:
+            self.player_sprite.move(change_x, change_y, self.transformation)
+        self.transformation = False
 
         position = (
             self.player_sprite.center_x,
@@ -525,10 +562,7 @@ class LevelFourth(arcade.View):
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
         tile_map = arcade.load_tilemap('assets/fourth_level.tmx', scaling=TILE_SCALING)
-        self.player_sprite = arcade.Sprite(":resources:images/enemies/wormGreen.png",
-                                           0.38)
-        self.player_sprite.center_x = 48
-        self.player_sprite.center_y = 50
+        self.player_sprite = Player(48, 50)
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
@@ -556,6 +590,9 @@ class LevelFourth(arcade.View):
         self.world_width = SCREEN_WIDTH
 
         self.world_height = SCREEN_HEIGHT
+
+        self.transform_timer = 0
+        self.transformation = False
 
     def on_draw(self):
         """Отрисовка экрана"""
@@ -590,6 +627,11 @@ class LevelFourth(arcade.View):
             f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
             arcade.color.WHITE, 20, batch=self.batch)
 
+        self.transform_timer += delta_time
+        if self.transform_timer > 0.18:
+            self.transformation = True
+            self.transform_timer = 0
+
         change_x = 0
         change_y = 0
 
@@ -602,9 +644,9 @@ class LevelFourth(arcade.View):
         elif self.right_pressed and not self.left_pressed:
             change_x = TILE_SIZE * TILE_SCALING * delta_time * 4
 
-        # Устанавливаем изменение координат персонажа
-        self.player_sprite.change_x = change_x
-        self.player_sprite.change_y = change_y
+        if change_x != 0 or change_y != 0:
+            self.player_sprite.move(change_x, change_y, self.transformation)
+        self.transformation = False
 
         position = (
             self.player_sprite.center_x,
