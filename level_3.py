@@ -91,7 +91,16 @@ class LevelThird(arcade.View):
         self.world_camera.use()
         for tile in self.map_list:
             if ((self.player_sprite.center_x - tile.center_x) ** 2 + (self.player_sprite.center_y -
-                                                                      tile.center_y) ** 2) ** 0.5 <= TILE_SIZE * 10:
+                                                                      tile.center_y) ** 2) ** 0.5 <= TILE_SIZE * 5:
+                tile.alpha = 255
+                draw_list.append(tile)
+            elif ((self.player_sprite.center_x - tile.center_x) ** 2 + (self.player_sprite.center_y -
+                                                                        tile.center_y) ** 2) ** 0.5 <= TILE_SIZE * 7.5:
+                tile.alpha = 185
+                draw_list.append(tile)
+            elif ((self.player_sprite.center_x - tile.center_x) ** 2 + (self.player_sprite.center_y -
+                                                                        tile.center_y) ** 2) ** 0.5 <= TILE_SIZE * 10:
+                tile.alpha = 110
                 draw_list.append(tile)
         draw_list.draw()
         self.player_list.draw()
