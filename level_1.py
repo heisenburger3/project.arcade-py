@@ -162,21 +162,21 @@ class LevelFirst(arcade.View):
             self.window.show_view(level_second)
 
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.UP:
+        if key in (arcade.key.UP, arcade.key.W):
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
 
     def on_key_release(self, key, modifiers):
-        if key == arcade.key.UP:
+        if key in (arcade.key.UP, arcade.key.W):
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False

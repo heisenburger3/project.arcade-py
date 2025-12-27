@@ -1,7 +1,7 @@
 from pyglet.graphics import Batch
 import arcade
-from level_4 import LevelFourth
 from player import Player
+from level_4 import LevelFourth
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -16,7 +16,7 @@ DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 class LevelThird(arcade.View):
     def __init__(self):
         super().__init__()
-        arcade.set_background_color(arcade.color.GRAY)
+        arcade.set_background_color(arcade.color.EERIE_BLACK)
 
         # Камеры: мир и GUI
         self.world_camera = arcade.camera.Camera2D()
@@ -57,6 +57,12 @@ class LevelThird(arcade.View):
         self.walls_list = tile_map.sprite_lists['walls']
         self.walls2_list = tile_map.sprite_lists['walls2']
 
+        self.map_list = arcade.SpriteList()
+        self.map_list.extend(self.base_list)
+        self.map_list.extend(self.path_list)
+        self.map_list.extend(self.walls_list)
+        self.map_list.extend(self.walls2_list)
+
         self.physics_engine = arcade.PhysicsEngineSimple(
             self.player_sprite, self.collision_list)
 
@@ -65,6 +71,7 @@ class LevelThird(arcade.View):
         apple.center_x = 933
         apple.center_y = 930
         self.apple_list.append(apple)
+        self.map_list.append(apple)
 
         self.world_width = SCREEN_WIDTH
 
@@ -77,14 +84,16 @@ class LevelThird(arcade.View):
         """Отрисовка экрана"""
         self.clear()
 
+        draw_list = arcade.SpriteList()
+
         # Отрисовка карты и камеры
         self.camera_shake.update_camera()
         self.world_camera.use()
-        self.base_list.draw()
-        self.path_list.draw()
-        self.walls_list.draw()
-        self.walls2_list.draw()
-        self.apple_list.draw()
+        for tile in self.map_list:
+            if ((self.player_sprite.center_x - tile.center_x) ** 2 + (self.player_sprite.center_y -
+                                                                      tile.center_y) ** 2) ** 0.5 <= TILE_SIZE * 10:
+                draw_list.append(tile)
+        draw_list.draw()
         self.player_list.draw()
         self.gui_camera.use()
         self.camera_shake.readjust_camera()
@@ -142,7 +151,7 @@ class LevelThird(arcade.View):
             f"Время: {self.total_time:.2f} сек",
             10,
             30,
-            arcade.color.BLACK,
+            arcade.color.WHITE,
             16,
             batch=self.batch
         )
@@ -153,21 +162,21 @@ class LevelThird(arcade.View):
             self.window.show_view(level_fourth)
 
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.UP:
+        if key in (arcade.key.UP, arcade.key.W):
             self.up_pressed = True
-        elif key == arcade.key.DOWN:
+        elif key in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = True
-        elif key == arcade.key.LEFT:
+        elif key in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = True
-        elif key == arcade.key.RIGHT:
+        elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = True
 
     def on_key_release(self, key, modifiers):
-        if key == arcade.key.UP:
+        if key in (arcade.key.UP, arcade.key.W):
             self.up_pressed = False
-        elif key == arcade.key.DOWN:
+        elif key in (arcade.key.DOWN, arcade.key.S):
             self.down_pressed = False
-        elif key == arcade.key.LEFT:
+        elif key in (arcade.key.LEFT, arcade.key.A):
             self.left_pressed = False
-        elif key == arcade.key.RIGHT:
+        elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
