@@ -43,14 +43,15 @@ class EndView(arcade.View):
         self.batch = Batch()
         end_text = arcade.Text(f'Время: {self.time:.2f} сек', self.window.width / 2, self.window.height / 2,
                                arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
-        any_key_text = arcade.Text("Any key to return to the start window",
+        any_key_text = arcade.Text("R key to return to the start window",
                                    self.window.width / 2, self.window.height / 2 - 75,
                                    arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
         self.batch.draw()
 
     def on_key_press(self, key, modifiers):
-        start_view = StartView()
-        self.window.show_view(start_view)
+        if key == arcade.key.R:
+            start_view = StartView()
+            self.window.show_view(start_view)
 
 
 def main():

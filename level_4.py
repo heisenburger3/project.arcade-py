@@ -40,20 +40,31 @@ class LevelFourth(arcade.View):
             shake_frequency=10.0,
         )
 
-    def setup(self, time):
+    def setup(self, time, tile_map, level):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
         # Списки спрайтов, спрайт карты и игрок
         self.player_list = arcade.SpriteList()
         self.apple_list = arcade.SpriteList()
-        tile_map = arcade.load_tilemap('assets/fourth_level.tmx', scaling=TILE_SCALING)
-        self.player_sprite = Player(48, 50)
+
+        if level == 0:
+            self.player_sprite = Player(48, 50)
+            self.world_width = SCREEN_WIDTH
+            self.world_height = SCREEN_HEIGHT
+        elif level == 1:
+            self.player_sprite = Player(933, 930)
+            self.world_width = SCREEN_WIDTH
+            self.world_height = SCREEN_HEIGHT * 2
+        else:
+            self.player_sprite = Player(933, 1940)
+            self.world_width = SCREEN_WIDTH * 2
+            self.world_height = SCREEN_HEIGHT * 2
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
         self.total_time = time
 
         # Подсёт очков
-        self.score = 300
+        self.score = 300 + level * 100
 
         # Списки тайлов
         self.collision_list = tile_map.sprite_lists['collision']
@@ -66,17 +77,25 @@ class LevelFourth(arcade.View):
             self.player_sprite, self.collision_list)
 
         # Переход на следующий уровень с помощью яблока
-        apple = arcade.Sprite("assets/apple_11.png", 0.2)
-        apple.center_x = 933
-        apple.center_y = 930
-        self.apple_list.append(apple)
+        apple1 = arcade.Sprite("assets/apple_11.png", 0.2)
+        apple1.center_x = 933
+        apple1.center_y = 930
 
-        self.world_width = SCREEN_WIDTH
+        apple2 = arcade.Sprite("assets/apple_11.png", 0.2)
+        apple2.center_x = 933
+        apple2.center_y = 1940
 
-        self.world_height = SCREEN_HEIGHT
+        apple3 = arcade.Sprite("assets/apple_11.png", 0.2)
+        apple3.center_x = 1940
+        apple3.center_y = 1940
+        self.apple_list.extend((apple1, apple2, apple3)[level:])
 
         self.transform_timer = 0
         self.transformation = False
+
+        self.level = level
+
+        self.world_camera.position = (self.player_sprite.center_x, self.player_sprite.center_y)
 
     def on_draw(self):
         """Отрисовка экрана"""
@@ -152,7 +171,17 @@ class LevelFourth(arcade.View):
             batch=self.batch
         )
 
-        if len(self.apple_list) == 0:
+        if len(self.apple_list) == 2 and self.level == 0:
+            tile_map = arcade.load_tilemap('assets/fourth_level_2.tmx', scaling=TILE_SCALING)
+            next_map = LevelFourth(self.sound)
+            next_map.setup(self.total_time, tile_map, 1)
+            self.window.show_view(next_map)
+        elif len(self.apple_list) == 1 and self.level == 1:
+            tile_map = arcade.load_tilemap('assets/fourth_level_3.tmx', scaling=TILE_SCALING)
+            next_map = LevelFourth(self.sound)
+            next_map.setup(self.total_time, tile_map, 2)
+            self.window.show_view(next_map)
+        elif len(self.apple_list) == 0 and self.level == 2:
             arcade.stop_sound(self.sound)
             end = end_view(self.total_time)
             self.window.show_view(end)

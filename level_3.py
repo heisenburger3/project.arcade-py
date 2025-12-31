@@ -168,7 +168,8 @@ class LevelThird(arcade.View):
 
         if len(self.apple_list) == 0:
             level_fourth = LevelFourth(self.sound)
-            level_fourth.setup(self.total_time)
+            tile_map = arcade.load_tilemap('assets/fourth_level.tmx', scaling=TILE_SCALING)
+            level_fourth.setup(self.total_time, tile_map, 0)
             self.window.show_view(level_fourth)
 
     def on_key_press(self, key, modifiers):
