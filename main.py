@@ -32,6 +32,27 @@ class StartView(arcade.View):  # Главное меню игры
         self.window.show_view(level_view)
 
 
+class EndView(arcade.View):
+    def __init__(self, time):
+        super().__init__()
+        arcade.set_background_color(arcade.color.BLACK)
+        self.time = time
+
+    def on_draw(self):
+        self.clear()
+        self.batch = Batch()
+        end_text = arcade.Text(f'Время: {self.time:.2f} сек', self.window.width / 2, self.window.height / 2,
+                               arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
+        any_key_text = arcade.Text("Any key to return to the start window",
+                                   self.window.width / 2, self.window.height / 2 - 75,
+                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
+        self.batch.draw()
+
+    def on_key_press(self, key, modifiers):
+        start_view = StartView()
+        self.window.show_view(start_view)
+
+
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     start_view = StartView()

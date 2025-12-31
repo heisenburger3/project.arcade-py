@@ -13,6 +13,7 @@ class Player(arcade.Sprite):
         self.scale = 0.38
         self.center_x = x
         self.center_y = y
+        self.angle = 180
 
         self.textures = (self.texture, self.move_texture)
         self.current_texture = 0

@@ -14,9 +14,10 @@ DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 
 
 class LevelSecond(arcade.View):
-    def __init__(self):
+    def __init__(self, sound):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
+        self.sound = sound
 
         self.world_camera = arcade.camera.Camera2D()
         self.gui_camera = arcade.camera.Camera2D()
@@ -34,7 +35,7 @@ class LevelSecond(arcade.View):
             shake_frequency=10.0,
         )
 
-    def setup(self):
+    def setup(self, time):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
         # Списки спрайтов, спрайт карты и игрок
         self.player_list = arcade.SpriteList()
@@ -44,7 +45,7 @@ class LevelSecond(arcade.View):
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
-        self.total_time = 0.0
+        self.total_time = time
 
         # Подсёт очков
         self.score = 100
@@ -142,8 +143,8 @@ class LevelSecond(arcade.View):
         )
 
         if len(self.apple_list) == 0:
-            level_third = LevelThird()
-            level_third.setup()
+            level_third = LevelThird(self.sound)
+            level_third.setup(self.total_time)
             self.window.show_view(level_third)
 
     def on_key_press(self, key, modifiers):

@@ -47,8 +47,8 @@ class LevelFirst(arcade.View):
         self.score = 0
 
         # Музыкальное сопровождение
-        audio = arcade.load_sound('assets/game_music.mp3', False)
-        arcade.play_sound(audio, 1.0, 0, True)
+        self.audio = arcade.load_sound('assets/game_music.mp3', False)
+        self.sound = arcade.play_sound(self.audio, 1.0, 0, True)
 
         # С помощью этого, наш червяк сможет адекватно передвигаться с зажатыми клавишами
         self.up_pressed = False
@@ -157,8 +157,8 @@ class LevelFirst(arcade.View):
 
         # Переход на следующий уровень
         if len(self.apple_list) == 0:
-            level_second = LevelSecond()
-            level_second.setup()
+            level_second = LevelSecond(self.sound)
+            level_second.setup(self.total_time)
             self.window.show_view(level_second)
 
     def on_key_press(self, key, modifiers):

@@ -12,10 +12,16 @@ DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 
 
+def end_view(time):
+    from main import EndView
+    return EndView(time)
+
+
 class LevelFourth(arcade.View):
-    def __init__(self):
+    def __init__(self, sound):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
+        self.sound = sound
 
         # Камеры: мир и GUI
         self.world_camera = arcade.camera.Camera2D()
@@ -34,7 +40,7 @@ class LevelFourth(arcade.View):
             shake_frequency=10.0,
         )
 
-    def setup(self):
+    def setup(self, time):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
         # Списки спрайтов, спрайт карты и игрок
         self.player_list = arcade.SpriteList()
@@ -44,7 +50,7 @@ class LevelFourth(arcade.View):
         self.player_list.append(self.player_sprite)
 
         self.batch = Batch()
-        self.total_time = 0.0
+        self.total_time = time
 
         # Подсёт очков
         self.score = 300
@@ -145,6 +151,11 @@ class LevelFourth(arcade.View):
             16,
             batch=self.batch
         )
+
+        if len(self.apple_list) == 0:
+            arcade.stop_sound(self.sound)
+            end = end_view(self.total_time)
+            self.window.show_view(end)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.UP, arcade.key.W):
