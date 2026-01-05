@@ -1,5 +1,6 @@
 from pyglet.graphics import Batch
 import arcade
+import sqlite3
 from player import Player
 from level_4 import LevelFourth
 
@@ -13,8 +14,13 @@ DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 
 
+def end_view(time):
+    from main import EndView
+    return EndView(time)
+
+
 class LevelThird(arcade.View):
-    def __init__(self, sound):
+    def __init__(self, sound=None, express=True):
         super().__init__()
         arcade.set_background_color(arcade.color.EERIE_BLACK)
         self.sound = sound
@@ -36,6 +42,11 @@ class LevelThird(arcade.View):
             shake_frequency=10.0,
         )
 
+        self.connection = sqlite3.Connection("assets/statistics.sqlite")
+        self.cursor = self.connection.cursor()
+
+        self.express = express
+
     def setup(self, time):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
         # Списки спрайтов, спрайт карты и игрок
@@ -45,11 +56,12 @@ class LevelThird(arcade.View):
         self.player_sprite = Player(48, 50)
         self.player_list.append(self.player_sprite)
 
+        if not self.sound:
+            self.audio = arcade.load_sound('assets/game_music.mp3', False)
+            self.sound = arcade.play_sound(self.audio, 1.0, 0, True)
+
         self.batch = Batch()
         self.total_time = time
-
-        # Подсёт очков
-        self.score = 200
 
         # Списки тайлов
         self.collision_list = tile_map.sprite_lists['collision']
@@ -116,14 +128,9 @@ class LevelThird(arcade.View):
 
         for apple in apples_hit_list:
             self.camera_shake.start()
-            self.score += 100
             apple_collect = arcade.load_sound("assets/apple_collect.mp3", False)
             arcade.play_sound(apple_collect, 5.0, 0, False)
             apple.remove_from_sprite_lists()
-
-        self.score_text = arcade.Text(
-            f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
-            arcade.color.WHITE, 20, batch=self.batch)
 
         self.transform_timer += delta_time
         if self.transform_timer > 0.18:
@@ -160,17 +167,24 @@ class LevelThird(arcade.View):
         self.fonts = arcade.Text(
             f"Время: {self.total_time:.2f} сек",
             10,
-            30,
+            self.height - 30,
             arcade.color.WHITE,
             16,
-            batch=self.batch
+            batch=self.batch,
+            font_name="Times new roman"
         )
 
-        if len(self.apple_list) == 0:
+        if len(self.apple_list) == 0 and self.express:
             level_fourth = LevelFourth(self.sound)
             tile_map = arcade.load_tilemap('assets/fourth_level.tmx', scaling=TILE_SCALING)
             level_fourth.setup(self.total_time, tile_map, 0)
             self.window.show_view(level_fourth)
+        elif len(self.apple_list) == 0:
+            arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into third_level(time) values({self.total_time})")
+            self.connection.commit()
+            end = end_view(self.total_time)
+            self.window.show_view(end)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.UP, arcade.key.W):

@@ -1,5 +1,6 @@
 from pyglet.graphics import Batch
 import arcade
+import sqlite3
 from player import Player
 
 SCREEN_WIDTH = 1000
@@ -18,7 +19,7 @@ def end_view(time):
 
 
 class LevelFourth(arcade.View):
-    def __init__(self, sound):
+    def __init__(self, sound=None, express=True):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         self.sound = sound
@@ -40,6 +41,11 @@ class LevelFourth(arcade.View):
             shake_frequency=10.0,
         )
 
+        self.connection = sqlite3.Connection("assets/statistics.sqlite")
+        self.cursor = self.connection.cursor()
+
+        self.express = express
+
     def setup(self, time, tile_map, level):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
         # Списки спрайтов, спрайт карты и игрок
@@ -60,11 +66,12 @@ class LevelFourth(arcade.View):
             self.world_height = SCREEN_HEIGHT * 2
         self.player_list.append(self.player_sprite)
 
+        if not self.sound:
+            self.audio = arcade.load_sound('assets/game_music.mp3', False)
+            self.sound = arcade.play_sound(self.audio, 1.0, 0, True)
+
         self.batch = Batch()
         self.total_time = time
-
-        # Подсёт очков
-        self.score = 300 + level * 100
 
         # Списки тайлов
         self.collision_list = tile_map.sprite_lists['collision']
@@ -121,14 +128,9 @@ class LevelFourth(arcade.View):
 
         for apple in apples_hit_list:
             self.camera_shake.start()
-            self.score += 100
             apple_collect = arcade.load_sound("assets/apple_collect.mp3", False)
             arcade.play_sound(apple_collect, 5.0, 0, False)
             apple.remove_from_sprite_lists()
-
-        self.score_text = arcade.Text(
-            f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
-            arcade.color.WHITE, 20, batch=self.batch)
 
         self.transform_timer += delta_time
         if self.transform_timer > 0.18:
@@ -165,10 +167,11 @@ class LevelFourth(arcade.View):
         self.fonts = arcade.Text(
             f"Время: {self.total_time:.2f} сек",
             10,
-            30,
-            arcade.color.BLACK,
+            self.height - 30,
+            arcade.color.WHITE,
             16,
-            batch=self.batch
+            batch=self.batch,
+            font_name="Times new roman"
         )
 
         if len(self.apple_list) == 2 and self.level == 0:
@@ -181,8 +184,16 @@ class LevelFourth(arcade.View):
             next_map = LevelFourth(self.sound)
             next_map.setup(self.total_time, tile_map, 2)
             self.window.show_view(next_map)
+        elif len(self.apple_list) == 0 and self.level == 2 and self.express:
+            arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into all_levels(time) values({self.total_time})")
+            self.connection.commit()
+            end = end_view(self.total_time)
+            self.window.show_view(end)
         elif len(self.apple_list) == 0 and self.level == 2:
             arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into fourth_level(time) values({self.total_time})")
+            self.connection.commit()
             end = end_view(self.total_time)
             self.window.show_view(end)
 

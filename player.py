@@ -3,7 +3,7 @@ import arcade
 
 class Player(arcade.Sprite):
     def __init__(self, x, y):
-        super().__init__(x, y)
+        super().__init__()
         """Так как центр текстур GreenWorm и GreenWorm_move в ресурсах arcade находится над видимой её частью, повороты 
         реализовывались некорректно из-за смещённых center_x и center_y, поэтому потребовалось добавить в assets 
         обрезанные до видимых частей картинки"""

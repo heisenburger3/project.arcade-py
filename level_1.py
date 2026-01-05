@@ -1,4 +1,5 @@
 import arcade
+import sqlite3
 from pyglet.graphics import Batch
 from level_2 import LevelSecond
 from player import Player
@@ -13,8 +14,13 @@ DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
 
 
+def end_view(time):
+    from main import EndView
+    return EndView(time)
+
+
 class LevelFirst(arcade.View):
-    def __init__(self):
+    def __init__(self, express=True):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
 
@@ -29,6 +35,11 @@ class LevelFirst(arcade.View):
             shake_frequency=10.0,
         )
 
+        self.connection = sqlite3.Connection("assets/statistics.sqlite")
+        self.cursor = self.connection.cursor()
+
+        self.express = express
+
     def setup(self):
         # Списки спрайтов, спрайт карты и игрок
         self.player_list = arcade.SpriteList()
@@ -42,9 +53,6 @@ class LevelFirst(arcade.View):
 
         # Батч
         self.batch = Batch()
-
-        # Подсёт очков
-        self.score = 0
 
         # Музыкальное сопровождение
         self.audio = arcade.load_sound('assets/game_music.mp3', False)
@@ -103,15 +111,9 @@ class LevelFirst(arcade.View):
 
         for apple in apples_hit_list:
             self.camera_shake.start()
-            self.score += 100
             apple_collect = arcade.load_sound("assets/apple_collect.mp3", False)
             arcade.play_sound(apple_collect, 5.0, 0, False)
             apple.remove_from_sprite_lists()
-
-        # Подсчёт очков (текст)
-        self.score_text = arcade.Text(
-            f"Счет: {self.score}", 10, SCREEN_HEIGHT - 30,
-            arcade.color.WHITE, 20, batch=self.batch)
 
         self.transform_timer += delta_time
         if self.transform_timer > 0.18:
@@ -149,17 +151,24 @@ class LevelFirst(arcade.View):
         self.fonts = arcade.Text(
             f"Время: {self.total_time:.2f} сек",
             10,
-            30,
-            arcade.color.BLACK,
+            self.height - 30,
+            arcade.color.WHITE,
             16,
-            batch=self.batch
+            batch=self.batch,
+            font_name="Times new roman"
         )
 
         # Переход на следующий уровень
-        if len(self.apple_list) == 0:
+        if len(self.apple_list) == 0 and self.express:
             level_second = LevelSecond(self.sound)
             level_second.setup(self.total_time)
             self.window.show_view(level_second)
+        elif len(self.apple_list) == 0:
+            arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into first_level(time) values({self.total_time})")
+            self.connection.commit()
+            end = end_view(self.total_time)
+            self.window.show_view(end)
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.UP, arcade.key.W):
