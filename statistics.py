@@ -144,7 +144,6 @@ class Statistics(arcade.View):
         self.tab0.on_click = lambda event: self.new_table(self.tab0)
         self.manager.add(self.tab0)
 
-        self.tabs = [self.tab1, self.tab2, self.tab3, self.tab4, self.tab0]
         self.clicked = self.tab1
 
         back_btn = UIFlatButton(text="Вернуться в меню",

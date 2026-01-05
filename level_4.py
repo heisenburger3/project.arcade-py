@@ -176,12 +176,12 @@ class LevelFourth(arcade.View):
 
         if len(self.apple_list) == 2 and self.level == 0:
             tile_map = arcade.load_tilemap('assets/fourth_level_2.tmx', scaling=TILE_SCALING)
-            next_map = LevelFourth(self.sound)
+            next_map = LevelFourth(self.sound, express=self.express)
             next_map.setup(self.total_time, tile_map, 1)
             self.window.show_view(next_map)
         elif len(self.apple_list) == 1 and self.level == 1:
             tile_map = arcade.load_tilemap('assets/fourth_level_3.tmx', scaling=TILE_SCALING)
-            next_map = LevelFourth(self.sound)
+            next_map = LevelFourth(self.sound, express=self.express)
             next_map.setup(self.total_time, tile_map, 2)
             self.window.show_view(next_map)
         elif len(self.apple_list) == 0 and self.level == 2 and self.express:
