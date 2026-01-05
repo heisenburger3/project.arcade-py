@@ -1,5 +1,6 @@
 from pyglet.graphics import Batch
 import arcade
+import sqlite3
 from player import Player
 
 SCREEN_WIDTH = 1000
@@ -18,7 +19,7 @@ def end_view(time):
 
 
 class LevelFourth(arcade.View):
-    def __init__(self, sound=None):
+    def __init__(self, sound=None, express=True):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
         self.sound = sound
@@ -39,6 +40,11 @@ class LevelFourth(arcade.View):
             falloff_time=0.5,
             shake_frequency=10.0,
         )
+
+        self.connection = sqlite3.Connection("assets/statistics.sqlite")
+        self.cursor = self.connection.cursor()
+
+        self.express = express
 
     def setup(self, time, tile_map, level):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
@@ -164,7 +170,8 @@ class LevelFourth(arcade.View):
             self.height - 30,
             arcade.color.WHITE,
             16,
-            batch=self.batch
+            batch=self.batch,
+            font_name="Times new roman"
         )
 
         if len(self.apple_list) == 2 and self.level == 0:
@@ -177,8 +184,16 @@ class LevelFourth(arcade.View):
             next_map = LevelFourth(self.sound)
             next_map.setup(self.total_time, tile_map, 2)
             self.window.show_view(next_map)
+        elif len(self.apple_list) == 0 and self.level == 2 and self.express:
+            arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into all_levels(time) values({self.total_time})")
+            self.connection.commit()
+            end = end_view(self.total_time)
+            self.window.show_view(end)
         elif len(self.apple_list) == 0 and self.level == 2:
             arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into fourth_level(time) values({self.total_time})")
+            self.connection.commit()
             end = end_view(self.total_time)
             self.window.show_view(end)
 

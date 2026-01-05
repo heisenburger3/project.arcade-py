@@ -5,6 +5,7 @@ from level_1 import LevelFirst
 from level_2 import LevelSecond
 from level_3 import LevelThird
 from level_4 import LevelFourth
+from statistics import Statistics
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -27,28 +28,32 @@ class StartView(arcade.View):  # Главное меню игры
                 "bg": arcade.color.Color(0, 0, 0, 70),
                 "border": arcade.color.DARK_GOLDENROD,
                 "border_width": 4,
-                "font_size": 25
+                "font_size": 25,
+                "font_name": "Times new roman"
             },
             "hover": {
                 "font_color": arcade.color.Color(164, 114, 0, 255),
                 "bg": arcade.color.Color(0, 0, 0, 100),
                 "border": arcade.color.Color(164, 114, 0, 255),
                 "border_width": 4,
-                "font_size": 25
+                "font_size": 25,
+                "font_name": "Times new roman"
             },
             "press": {
-                "font_color": arcade.color.Color(140, 90, 0, 255),
+                "font_color": arcade.color.Color(145, 95, 0, 255),
                 "bg": arcade.color.Color(0, 0, 0, 130),
-                "border": arcade.color.Color(140, 90, 0, 255),
+                "border": arcade.color.Color(145, 95, 0, 255),
                 "border_width": 4,
-                "font_size": 25
+                "font_size": 25,
+                "font_name": "Times new roman"
             },
             "disabled": {
                 "font_color": arcade.color.DARK_GOLDENROD,
                 "bg": arcade.color.Color(0, 0, 0, 70),
                 "border": arcade.color.DARK_GOLDENROD,
                 "border_width": 4,
-                "font_size": 25
+                "font_size": 25,
+                "font_name": "Times new roman"
             },
         }
 
@@ -64,13 +69,14 @@ class StartView(arcade.View):  # Главное меню игры
                         width=self.width,
                         x=0,
                         y=self.height - 200,
-                        align="center")
+                        align="center",
+                        font_name="Times new roman")
         self.manager.add(title)
 
         anchor_layout = UIAnchorLayout()
         vert_layout = UIBoxLayout(vertical=True, space_between=50)
 
-        hor_layout_1 = UIBoxLayout(vertical=False, space_between=250)
+        hor_layout_1 = UIBoxLayout(vertical=False, space_between=200)
         lvl_1 = UIFlatButton(text="1 уровень",
                              width=300,
                              height=100,
@@ -85,7 +91,7 @@ class StartView(arcade.View):  # Главное меню игры
         hor_layout_1.add(lvl_2)
         vert_layout.add(hor_layout_1)
 
-        hor_layout_2 = UIBoxLayout(vertical=False, space_between=250)
+        hor_layout_2 = UIBoxLayout(vertical=False, space_between=200)
         lvl_3 = UIFlatButton(text="3 уровень",
                              width=300,
                              height=100,
@@ -110,35 +116,54 @@ class StartView(arcade.View):  # Главное меню игры
         anchor_layout.add(vert_layout)
         self.manager.add(anchor_layout)
 
+        stat_btn = UIFlatButton(text="Статистика",
+                                width=400,
+                                height=100,
+                                x=self.width // 2 - 200,
+                                y=self.height // 2 - 375,
+                                style=self.btn_style)
+        stat_btn.on_click = lambda event: self.stats()
+        self.manager.add(stat_btn)
+
     def on_draw(self):
         self.clear()
         self.manager.draw()
 
     def first_level(self):
+        self.manager.disable()
         level_view = LevelFirst(express=False)
         level_view.setup()
         self.window.show_view(level_view)
 
     def second_level(self):
+        self.manager.disable()
         level_view = LevelSecond(express=False)
         level_view.setup(0)
         self.window.show_view(level_view)
 
     def third_level(self):
+        self.manager.disable()
         level_view = LevelThird(express=False)
         level_view.setup(0)
         self.window.show_view(level_view)
 
     def fourth_level(self):
-        level_view = LevelFourth()
+        self.manager.disable()
+        level_view = LevelFourth(express=False)
         tile_map = arcade.load_tilemap('assets/fourth_level.tmx', scaling=TILE_SCALING)
         level_view.setup(0, tile_map, 0)
         self.window.show_view(level_view)
 
     def all_levels(self):
+        self.manager.disable()
         level_view = LevelFirst()
         level_view.setup()
         self.window.show_view(level_view)
+
+    def stats(self):
+        self.manager.disable()
+        stat_view = Statistics(self.btn_style)
+        self.window.show_view(stat_view)
 
 
 class EndView(arcade.View):
@@ -151,10 +176,12 @@ class EndView(arcade.View):
         self.clear()
         self.batch = Batch()
         end_text = arcade.Text(f'Время: {self.time:.2f} сек', self.window.width / 2, self.window.height / 2,
-                               arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
+                               arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch,
+                               font_name="Times new roman")
         any_key_text = arcade.Text("R key to return to the start window",
                                    self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
+                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch,
+                                   font_name="Times new roman")
         self.batch.draw()
 
     def on_key_press(self, key, modifiers):

@@ -1,5 +1,6 @@
 from pyglet.graphics import Batch
 import arcade
+import sqlite3
 from level_3 import LevelThird
 from player import Player
 
@@ -39,6 +40,9 @@ class LevelSecond(arcade.View):
             falloff_time=0.5,
             shake_frequency=10.0,
         )
+
+        self.connection = sqlite3.Connection("assets/statistics.sqlite")
+        self.cursor = self.connection.cursor()
 
         self.express = express
 
@@ -142,7 +146,8 @@ class LevelSecond(arcade.View):
             self.height - 30,
             arcade.color.WHITE,
             16,
-            batch=self.batch
+            batch=self.batch,
+            font_name="Times new roman"
         )
 
         if len(self.apple_list) == 0 and self.express:
@@ -151,6 +156,8 @@ class LevelSecond(arcade.View):
             self.window.show_view(level_third)
         elif len(self.apple_list) == 0:
             arcade.stop_sound(self.sound)
+            self.cursor.execute(f"insert into second_level(time) values({self.total_time})")
+            self.connection.commit()
             end = end_view(self.total_time)
             self.window.show_view(end)
 
