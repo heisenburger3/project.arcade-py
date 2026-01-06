@@ -3,6 +3,7 @@ import sqlite3
 from pyglet.graphics import Batch
 from level_2 import LevelSecond
 from player import Player
+from end_view import EndView
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -12,11 +13,6 @@ TILE_SIZE = 16
 CAMERA_LERP = 0.1
 DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
-
-
-def end_view(time):
-    from main import EndView
-    return EndView(time)
 
 
 class LevelFirst(arcade.View):
@@ -165,9 +161,9 @@ class LevelFirst(arcade.View):
             self.window.show_view(level_second)
         elif len(self.apple_list) == 0:
             arcade.stop_sound(self.sound)
-            self.cursor.execute(f"insert into first_level(time) values({self.total_time})")
+            self.cursor.execute(f"insert into first_level(time) values({self.total_time:.2f})")
             self.connection.commit()
-            end = end_view(self.total_time)
+            end = EndView(self.total_time, "1 уровень")
             self.window.show_view(end)
 
     def on_key_press(self, key, modifiers):
