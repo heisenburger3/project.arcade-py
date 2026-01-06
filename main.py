@@ -1,4 +1,3 @@
-from pyglet.graphics import Batch
 import arcade
 from arcade.gui import UIManager, UILabel, UIFlatButton, UIBoxLayout, UIAnchorLayout
 from level_1 import LevelFirst
@@ -120,7 +119,7 @@ class StartView(arcade.View):  # Главное меню игры
                                 width=400,
                                 height=100,
                                 x=self.width // 2 - 200,
-                                y=self.height // 2 - 375,
+                                y=self.height // 2 - 400,
                                 style=self.btn_style)
         stat_btn.on_click = lambda event: self.stats()
         self.manager.add(stat_btn)
@@ -164,30 +163,6 @@ class StartView(arcade.View):  # Главное меню игры
         self.manager.disable()
         stat_view = Statistics(self.btn_style)
         self.window.show_view(stat_view)
-
-
-class EndView(arcade.View):
-    def __init__(self, time):
-        super().__init__()
-        arcade.set_background_color(arcade.color.BLACK)
-        self.time = time
-
-    def on_draw(self):
-        self.clear()
-        self.batch = Batch()
-        end_text = arcade.Text(f'Время: {self.time:.2f} сек', self.window.width / 2, self.window.height / 2,
-                               arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch,
-                               font_name="Times new roman")
-        any_key_text = arcade.Text("R key to return to the start window",
-                                   self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch,
-                                   font_name="Times new roman")
-        self.batch.draw()
-
-    def on_key_press(self, key, modifiers):
-        if key == arcade.key.R:
-            start_view = StartView()
-            self.window.show_view(start_view)
 
 
 def main():

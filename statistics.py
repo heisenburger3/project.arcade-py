@@ -148,7 +148,7 @@ class Statistics(arcade.View):
 
         back_btn = UIFlatButton(text="Вернуться в меню",
                                 x=self.width // 2 - 200,
-                                y=self.height // 2 - 375,
+                                y=self.height // 2 - 400,
                                 width=400,
                                 height=100,
                                 style=self.style)
