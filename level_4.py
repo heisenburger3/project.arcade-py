@@ -1,8 +1,10 @@
 from pyglet.graphics import Batch
 import arcade
 import sqlite3
+import random
 from player import Player
 from end_view import EndView
+from arcade.particles import FadeParticle, Emitter, EmitBurst
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -12,6 +14,34 @@ TILE_SIZE = 16
 CAMERA_LERP = 0.1
 DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
+
+SPARK_TEX = [
+    arcade.make_soft_circle_texture(12, arcade.color.YELLOW),
+    arcade.make_soft_circle_texture(12, arcade.color.PINK),
+    arcade.make_soft_circle_texture(12, arcade.color.LIGHT_CYAN),
+    arcade.make_soft_circle_texture(12, arcade.color.ELECTRIC_CRIMSON),
+]
+
+
+def gravity_drag(p):
+    p.change_y += -0.03
+    p.change_x *= 0.92
+    p.change_y *= 0.92
+
+
+def make_explosion(x, y, count=80):
+    return Emitter(
+        center_xy=(x, y),
+        emit_controller=EmitBurst(count),
+        particle_factory=lambda e: FadeParticle(
+            filename_or_texture=random.choice(SPARK_TEX),
+            change_xy=arcade.math.rand_in_circle((0.0, 0.0), 9.0),
+            lifetime=random.uniform(0.5, 1.1),
+            start_alpha=255, end_alpha=0,
+            scale=random.uniform(0.35, 0.6),
+            mutation_callback=gravity_drag,
+        ),
+    )
 
 
 class LevelFourth(arcade.View):
@@ -41,6 +71,8 @@ class LevelFourth(arcade.View):
         self.cursor = self.connection.cursor()
 
         self.express = express
+
+        self.emitters = []
 
     def setup(self, time, tile_map, level):
         """Настраиваем игру здесь. Вызывается при старте и при рестарте"""
@@ -96,6 +128,9 @@ class LevelFourth(arcade.View):
         self.transform_timer = 0
         self.transformation = False
 
+        self.time_stop = False
+        self.stop_time = 0.0
+
         self.level = level
 
         self.world_camera.position = (self.player_sprite.center_x, self.player_sprite.center_y)
@@ -112,6 +147,8 @@ class LevelFourth(arcade.View):
         self.walls_list.draw()
         self.walls2_list.draw()
         self.apple_list.draw()
+        for e in self.emitters:
+            e.draw()
         self.player_list.draw()
         self.gui_camera.use()
         self.camera_shake.readjust_camera()
@@ -159,7 +196,10 @@ class LevelFourth(arcade.View):
             CAMERA_LERP,
         )  # Плавность следования камеры
 
-        self.total_time += delta_time
+        if not self.time_stop:
+            self.total_time += delta_time
+        else:
+            self.stop_time += delta_time
         self.fonts = arcade.Text(
             f"Время: {self.total_time:.2f} сек",
             10,
@@ -169,6 +209,13 @@ class LevelFourth(arcade.View):
             batch=self.batch,
             font_name="Times new roman"
         )
+
+        emitters_copy = self.emitters.copy()
+        for e in emitters_copy:
+            e.update(delta_time)
+        for e in emitters_copy:
+            if e.can_reap():
+                self.emitters.remove(e)
 
         if len(self.apple_list) == 2 and self.level == 0:
             tile_map = arcade.load_tilemap('assets/fourth_level_2.tmx', scaling=TILE_SCALING)
@@ -180,16 +227,22 @@ class LevelFourth(arcade.View):
             next_map = LevelFourth(self.sound, express=self.express)
             next_map.setup(self.total_time, tile_map, 2)
             self.window.show_view(next_map)
-        elif len(self.apple_list) == 0 and self.level == 2 and self.express:
+        elif len(self.apple_list) == 0 and self.level == 2 and self.express and self.stop_time == 0:
             arcade.stop_sound(self.sound)
             self.cursor.execute(f"insert into all_levels(time) values({self.total_time:.2f})")
             self.connection.commit()
+            self.time_stop = True
+            self.burst()
+        elif len(self.apple_list) == 0 and self.level == 2 and self.express and self.stop_time >= 0.8:
             end = EndView(self.total_time, "Полное прохождение")
             self.window.show_view(end)
-        elif len(self.apple_list) == 0 and self.level == 2:
+        elif len(self.apple_list) == 0 and self.level == 2 and self.stop_time == 0:
             arcade.stop_sound(self.sound)
             self.cursor.execute(f"insert into fourth_level(time) values({self.total_time:.2f})")
             self.connection.commit()
+            self.time_stop = True
+            self.burst()
+        elif len(self.apple_list) == 0 and self.level == 2 and self.stop_time >= 0.8:
             end = EndView(self.total_time, "4 уровень")
             self.window.show_view(end)
 
@@ -212,3 +265,6 @@ class LevelFourth(arcade.View):
             self.left_pressed = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
+
+    def burst(self):
+        self.emitters.append(make_explosion(1940, 1940))
