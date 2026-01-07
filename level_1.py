@@ -1,9 +1,11 @@
 import arcade
 import sqlite3
+import random
 from pyglet.graphics import Batch
 from level_2 import LevelSecond
 from player import Player
 from end_view import EndView
+from arcade.particles import FadeParticle, Emitter, EmitBurst
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -13,6 +15,34 @@ TILE_SIZE = 16
 CAMERA_LERP = 0.1
 DEAD_ZONE_W = int(SCREEN_WIDTH * 0.3)
 DEAD_ZONE_H = int(SCREEN_HEIGHT * 0.4)
+
+SPARK_TEX = [
+    arcade.make_soft_circle_texture(12, arcade.color.YELLOW),
+    arcade.make_soft_circle_texture(12, arcade.color.PINK),
+    arcade.make_soft_circle_texture(12, arcade.color.LIGHT_CYAN),
+    arcade.make_soft_circle_texture(12, arcade.color.ELECTRIC_CRIMSON),
+]
+
+
+def gravity_drag(p):
+    p.change_y += -0.03
+    p.change_x *= 0.92
+    p.change_y *= 0.92
+
+
+def make_explosion(x, y, count=80):
+    return Emitter(
+        center_xy=(x, y),
+        emit_controller=EmitBurst(count),
+        particle_factory=lambda e: FadeParticle(
+            filename_or_texture=random.choice(SPARK_TEX),
+            change_xy=arcade.math.rand_in_circle((0.0, 0.0), 9.0),
+            lifetime=random.uniform(0.5, 1.1),
+            start_alpha=255, end_alpha=0,
+            scale=random.uniform(0.35, 0.6),
+            mutation_callback=gravity_drag,
+        ),
+    )
 
 
 class LevelFirst(arcade.View):
@@ -36,6 +66,8 @@ class LevelFirst(arcade.View):
 
         self.express = express
 
+        self.emitters = []
+
     def setup(self):
         # Списки спрайтов, спрайт карты и игрок
         self.player_list = arcade.SpriteList()
@@ -46,6 +78,8 @@ class LevelFirst(arcade.View):
 
         # Таймер
         self.total_time = 0.0
+        self.time_stop = False
+        self.stop_time = 0.0
 
         # Батч
         self.batch = Batch()
@@ -90,6 +124,8 @@ class LevelFirst(arcade.View):
         self.base_list.draw()
         self.path_list.draw()
         self.apple_list.draw()
+        for e in self.emitters:
+            e.draw()
         self.player_list.draw()
         self.gui_camera.use()
         self.camera_shake.readjust_camera()
@@ -143,7 +179,10 @@ class LevelFirst(arcade.View):
         self.world_camera.position = arcade.math.lerp_2d(self.world_camera.position, position, CAMERA_LERP,)
 
         # Таймер
-        self.total_time += delta_time
+        if not self.time_stop:
+            self.total_time += delta_time
+        else:
+            self.stop_time += delta_time
         self.fonts = arcade.Text(
             f"Время: {self.total_time:.2f} сек",
             10,
@@ -154,15 +193,25 @@ class LevelFirst(arcade.View):
             font_name="Times new roman"
         )
 
+        emitters_copy = self.emitters.copy()
+        for e in emitters_copy:
+            e.update(delta_time)
+        for e in emitters_copy:
+            if e.can_reap():
+                self.emitters.remove(e)
+
         # Переход на следующий уровень
         if len(self.apple_list) == 0 and self.express:
             level_second = LevelSecond(self.sound)
             level_second.setup(self.total_time)
             self.window.show_view(level_second)
-        elif len(self.apple_list) == 0:
+        elif len(self.apple_list) == 0 and self.stop_time == 0:
             arcade.stop_sound(self.sound)
             self.cursor.execute(f"insert into first_level(time) values({self.total_time:.2f})")
             self.connection.commit()
+            self.time_stop = True
+            self.burst()
+        elif len(self.apple_list) == 0 and self.stop_time >= 0.8:
             end = EndView(self.total_time, "1 уровень")
             self.window.show_view(end)
 
@@ -185,3 +234,6 @@ class LevelFirst(arcade.View):
             self.left_pressed = False
         elif key in (arcade.key.RIGHT, arcade.key.D):
             self.right_pressed = False
+
+    def burst(self):
+        self.emitters.append(make_explosion(933, 930))
