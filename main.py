@@ -5,6 +5,7 @@ from level_2 import LevelSecond
 from level_3 import LevelThird
 from level_4 import LevelFourth
 from statistics import Statistics
+from button_style import ButtonStyle
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
@@ -21,40 +22,7 @@ class StartView(arcade.View):  # Главное меню игры
         super().__init__()
         arcade.set_background_color(arcade.color.Color(20, 0, 30, 255))
 
-        self.btn_style = {
-            "normal": {
-                "font_color": arcade.color.DARK_GOLDENROD,
-                "bg": arcade.color.Color(0, 0, 0, 70),
-                "border": arcade.color.DARK_GOLDENROD,
-                "border_width": 4,
-                "font_size": 25,
-                "font_name": "Times new roman"
-            },
-            "hover": {
-                "font_color": arcade.color.Color(164, 114, 0, 255),
-                "bg": arcade.color.Color(0, 0, 0, 100),
-                "border": arcade.color.Color(164, 114, 0, 255),
-                "border_width": 4,
-                "font_size": 25,
-                "font_name": "Times new roman"
-            },
-            "press": {
-                "font_color": arcade.color.Color(145, 95, 0, 255),
-                "bg": arcade.color.Color(0, 0, 0, 130),
-                "border": arcade.color.Color(145, 95, 0, 255),
-                "border_width": 4,
-                "font_size": 25,
-                "font_name": "Times new roman"
-            },
-            "disabled": {
-                "font_color": arcade.color.DARK_GOLDENROD,
-                "bg": arcade.color.Color(0, 0, 0, 70),
-                "border": arcade.color.DARK_GOLDENROD,
-                "border_width": 4,
-                "font_size": 25,
-                "font_name": "Times new roman"
-            },
-        }
+        self.btn_style = ButtonStyle()
 
         self.manager = UIManager()
         self.manager.enable()
@@ -161,7 +129,7 @@ class StartView(arcade.View):  # Главное меню игры
 
     def stats(self):
         self.manager.disable()
-        stat_view = Statistics(self.btn_style)
+        stat_view = Statistics()
         self.window.show_view(stat_view)
 
 

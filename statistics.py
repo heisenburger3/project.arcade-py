@@ -1,6 +1,7 @@
 import sqlite3
 import arcade
 from arcade.gui import UIManager, UITextArea, UILabel, UIFlatButton
+from button_style import ButtonStyle
 
 
 def start():
@@ -9,10 +10,10 @@ def start():
 
 
 class Statistics(arcade.View):
-    def __init__(self, style):
+    def __init__(self):
         super().__init__()
         arcade.set_background_color(arcade.color.Color(20, 0, 30, 255))
-        self.style = style
+        self.style = ButtonStyle()
 
         self.tab_style = {
             "normal": {
