@@ -1,6 +1,7 @@
 import arcade
 import sqlite3
 from arcade.gui import UIManager, UILabel, UIFlatButton
+from button_style import ButtonStyle
 
 
 def starting():
@@ -73,7 +74,7 @@ class EndView(arcade.View):
                                 y=self.height // 2 - 275,
                                 width=400,
                                 height=100,
-                                style=starting().btn_style)
+                                style=ButtonStyle())
         back_btn.on_click = lambda event: self.start()
         self.manager.add(back_btn)
 

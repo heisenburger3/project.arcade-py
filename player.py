@@ -15,7 +15,7 @@ class Player(arcade.Sprite):
         self.center_y = y
         self.angle = 180
 
-        self.textures = (self.texture, self.move_texture)
+        self.worms = (self.texture, self.move_texture)
         self.current_texture = 0
 
     def move(self, change_x, change_y, transformation):
@@ -32,7 +32,7 @@ class Player(arcade.Sprite):
 
         if transformation:
             self.current_texture = (self.current_texture + 1) % 2
-            self.texture = self.textures[self.current_texture]
+            self.texture = self.worms[self.current_texture]
 
     def get_angle(self, change_x, change_y):
         if change_x == change_y == 0:
