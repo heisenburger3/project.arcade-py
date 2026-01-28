@@ -5,6 +5,7 @@ from pyglet.graphics import Batch
 from level_2 import LevelSecond
 from player import Player
 from end_view import EndView
+from base_level import BaseLevel
 from arcade.particles import FadeParticle, Emitter, EmitBurst
 
 SCREEN_WIDTH = 1000
@@ -45,7 +46,7 @@ def make_explosion(x, y, count=80):
     )
 
 
-class LevelFirst(arcade.View):
+class LevelFirst(BaseLevel):
     def __init__(self, express=True):
         super().__init__()
         arcade.set_background_color(arcade.color.GRAY)
@@ -214,26 +215,6 @@ class LevelFirst(arcade.View):
         elif len(self.apple_list) == 0 and self.stop_time >= 0.8:
             end = EndView(self.total_time, "1 уровень")
             self.window.show_view(end)
-
-    def on_key_press(self, key, modifiers):
-        if key in (arcade.key.UP, arcade.key.W):
-            self.up_pressed = True
-        elif key in (arcade.key.DOWN, arcade.key.S):
-            self.down_pressed = True
-        elif key in (arcade.key.LEFT, arcade.key.A):
-            self.left_pressed = True
-        elif key in (arcade.key.RIGHT, arcade.key.D):
-            self.right_pressed = True
-
-    def on_key_release(self, key, modifiers):
-        if key in (arcade.key.UP, arcade.key.W):
-            self.up_pressed = False
-        elif key in (arcade.key.DOWN, arcade.key.S):
-            self.down_pressed = False
-        elif key in (arcade.key.LEFT, arcade.key.A):
-            self.left_pressed = False
-        elif key in (arcade.key.RIGHT, arcade.key.D):
-            self.right_pressed = False
 
     def burst(self):
         self.emitters.append(make_explosion(933, 930))
